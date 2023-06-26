@@ -1,6 +1,10 @@
 import React, { useState, useRef } from "react";
-import "./home.css";
+import axios from "axios";
 
+import "./home.css";
+//
+
+//
 const home = () => {
   const inputRef1 = useRef(null);
   const inputRef2 = useRef(null);
@@ -16,9 +20,10 @@ const home = () => {
   const [formThree, setFormThree] = useState(false);
   const [formFour, setFormFour] = useState(false);
 
-  const [drugObj, setDrugObj] = useState({})
-  const [eventObj, setEventObj] = useState({})
-  const [confOrderObj, setConfOrderObj] = useState({})
+  const [drugObj, setDrugObj] = useState({});
+  const [eventObj, setEventObj] = useState({});
+  const [contactObj, setContactObj] = useState([]);
+  const [confOrderObj, setConfOrderObj] = useState([]);
 
   const addDrugHandler = () => {
     const newTitle = "Add Drug Form";
@@ -28,7 +33,6 @@ const home = () => {
     setFormTow(false);
     setFormThree(false);
     setFormFour(false);
-
   };
 
   const addEventHandler = () => {
@@ -49,6 +53,19 @@ const home = () => {
     setFormTow(false);
     setFormThree(true);
     setFormFour(false);
+
+    ////////////////////////////////
+    // get alll contacts
+    axios
+      .get("http://localhost:8000/getAllFalseConfirmations")
+      .then((response) => {
+        console.log(response.data);
+        setConfOrderObj(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    ////////////////////////////////
   };
 
   const showContactsHandler = () => {
@@ -59,53 +76,99 @@ const home = () => {
     setFormTow(false);
     setFormThree(false);
     setFormFour(true);
+
+    ////////////////////////////////
+    // get alll contacts
+    axios
+      .get("http://localhost:8000/getAllContacts")
+      .then((response) => {
+        console.log(response.data);
+        setContactObj(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    ////////////////////////////////
   };
 
-
-  const getDrugDataHandler = () =>{
+  const getDrugDataHandler = () => {
     const newDrugObj = {
-      drugName:inputRef1.current.value,
-      drugDesc:inputRef2.current.value,
-      drugUrl:inputRef3.current.value
-    }
-    setDrugObj(newDrugObj)
-    console.log(newDrugObj);
+      drugName: inputRef1.current.value,
+      drugDesc: inputRef2.current.value,
+      drugUrl: inputRef3.current.value,
+    };
+    setDrugObj(newDrugObj);
 
-  }
+    ///////
+    axios
+      .post("http://localhost:8000/adminDrug", newDrugObj)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    ///////
+  };
 
-  const getEventDataHandler = () =>{
+  const getEventDataHandler = () => {
     const newEventObj = {
-      eventName:inputRef4.current.value,
-      eventDesc:inputRef5.current.value,
-      eventDate:inputRef6.current.value
-    }
-    setEventObj(newEventObj)
+      eventTitle: inputRef4.current.value,
+      eventDesc: inputRef5.current.value,
+       eventDate:inputRef6.current.value
+    };
+    setEventObj(newEventObj);
     console.log(newEventObj);
-    
-  }
 
-  const AcceptConfirmationOrderHandler = () =>{
-    const newEventObj = {
-      orderTitle:'Card title',
-      orderDesc:'Some quick example text to build on the card title and make up the bulk of the card content.',
-      orderImage:'wwww.example.com',
-      orderAccpetance: false
-    }
-    setConfOrderObj(newEventObj)
-    console.log(newEventObj);
-    
-  }
+    ///////
+    axios
+      .post("http://localhost:8000/adminEvent", newEventObj)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    ///////
+  };
 
-  const RejectConfirmationOrderHandler = () =>{
-    const newEventObj = {
-      eventName:inputRef4.current.value,
-      eventDesc:inputRef5.current.value,
-      eventDate:inputRef6.current.value
-    }
-    setConfOrderObj(newEventObj)
-    console.log(newEventObj);
-    
-  }
+  const AcceptConfirmationOrderHandler = (index) => {
+    const newConfOrderObj = [...confOrderObj];
+    newConfOrderObj[index]["Acceptance"] = true;
+    const confirmationId = newConfOrderObj[index]["_id"];
+    axios
+      .post("http://localhost:8000/changeToTrue", { id: confirmationId })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    setConfOrderObj(newConfOrderObj);
+    console.log(newConfOrderObj);
+  };
+
+  const RejectConfirmationOrderHandler = (index) => {
+    console.log("TEST REJECT");
+    const newConfOrderObj = [...confOrderObj];
+    newConfOrderObj.splice(index, 1);
+    setConfOrderObj(newConfOrderObj);
+  };
+
+  const DeleteConfirmationOrderHandler = (index) => {
+    const confirmationId = confOrderObj[index]._id;
+    axios
+      .delete(`http://localhost:8000/deleteConfirmation/${confirmationId}`)
+      .then((response) => {
+        console.log(response);
+        const newConfOrderObj = [...confOrderObj];
+        newConfOrderObj.splice(index, 1);
+        setConfOrderObj(newConfOrderObj);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
 
   return (
     <div>
@@ -239,8 +302,11 @@ const home = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary formOneSubmit" onClick={getDrugDataHandler}>
-
+            <button
+              type="submit"
+              className="btn btn-primary formOneSubmit"
+              onClick={getDrugDataHandler}
+            >
               Submit
             </button>
           </form>
@@ -270,7 +336,7 @@ const home = () => {
                 Event Description:
               </label>
               <input
-              ref={inputRef5}
+                ref={inputRef5}
                 type="text"
                 className="form-control"
                 id="exampleInputPassword1"
@@ -281,12 +347,18 @@ const home = () => {
               <label for="exampleInputPassword1" className="form-label">
                 Event Date:
               </label>
-              <input 
-              ref={inputRef6}
-              type="date" className="form-control" />
+              <input
+                ref={inputRef6}
+                type="datetime-local"
+                className="form-control"
+              />
             </div>
 
-            <button type="submit" className="btn btn-primary formOneSubmit" onClick={getEventDataHandler}>
+            <button
+              type="submit"
+              className="btn btn-primary formOneSubmit"
+              onClick={getEventDataHandler}
+            >
               Submit
             </button>
           </form>
@@ -297,50 +369,71 @@ const home = () => {
 
       {/* FORM 3 */}
 
-      {formThree === true ? (
-        <div className="card form__confirmation__order " styles="width: 20rem; margin-left:20px;">
-          <img className="card-img-top" src="https://img.freepik.com/free-photo/top-view-table-full-delicious-food-composition_23-2149141353.jpg?w=1800&t=st=1687618432~exp=1687619032~hmac=517fcedf09c92e355c1a1ac904de96612d503421ceb506442a2304e6ce82e73f" alt="Card image cap" />
-          <div className="card-body">
-            <h5 className="card-title">Card title</h5>
-            <p className="card-text">
-              Some quick example text to build on the card title and make up the
-              bulk of the card's content.
-            </p>
-            <button  className="btn btn-primary" onClick={AcceptConfirmationOrderHandler}>
-              Accept
-            </button>  <button  className="btn btn-primary" onClick={RejectConfirmationOrderHandler}>
-              Reject
-            </button>
+      {formThree === true && confOrderObj
+  ? confOrderObj.map((item, index) => {
+      return (
+        item.Acceptance === false && (
+          <div
+            className="card form__confirmation__order "
+            styles="width: 20rem; margin-left:20px;"
+          >
+            <img
+              className="card-img-top"
+              src={item.foodUrl}
+              alt="Card image cap"
+            />
+            <div className="card-body">
+              <h5 className="card-title">{item.foodName}</h5>
+              <p className="card-text">{item.foodDesc}</p>
+              <button
+                className="btn btn-primary"
+                onClick={() => AcceptConfirmationOrderHandler(index)}
+              >
+                Accept
+              </button>{" "}
+              <button
+                className="btn btn-primary"
+                onClick={() => RejectConfirmationOrderHandler(index)}
+              >
+                Reject
+              </button>{" "}
+              <button
+                className="btn btn-danger"
+                onClick={() => DeleteConfirmationOrderHandler(index)}
+              >
+                Delete
+              </button>
+            </div>
           </div>
-        </div>
-        
-        
-      ) : (
-        ""
-      )}
-
+        )
+      );
+    })
+  : ""}
       {/* FORM 4 */}
 
-      {formFour === true ? (
-        <div className="card form__contact__message" styles="width: 20rem; margin-left:20px;">
-          
-          <div className="card-body">
-            <div className="message__title_email">
-            <h5 className="card-userName">User Name:</h5>
-            <h5 className="card-email">E-mail:</h5>
-            </div>
-            <h5 className="card-title">Phone Number:</h5>
-            <p className="card-text">
-              Message:
-              Some quick example text to build on the card title and make up the
-              bulk of the card's content.
-            </p>
-            
-          </div>
-        </div>
-      ) : (
-        ""
-      )}
+      {formFour === true && contactObj
+        ? contactObj.map((item) => {
+            return (
+              <div
+                className="card form__contact__message"
+                styles="width: 20rem; margin-left:20px;"
+              >
+                <div className="card-body">
+                  <div className="message__title_email">
+                    <h5 className="card-userName">
+                      User Name: {item.patientName}
+                    </h5>
+                    <h5 className="card-email">E-mail: {item.patientGmail} </h5>
+                  </div>
+                  <h5 className="card-title">
+                    Phone Number: {item.phoneNumber}{" "}
+                  </h5>
+                  <p className="card-text">Message: {item.patientMsg} </p>
+                </div>
+              </div>
+            );
+          })
+        : ""}
     </div>
   );
 };
