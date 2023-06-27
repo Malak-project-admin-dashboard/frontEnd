@@ -12,15 +12,20 @@ const home = () => {
   const inputRef4 = useRef(null);
   const inputRef5 = useRef(null);
   const inputRef6 = useRef(null);
+  const inputRef7 = useRef(null);
+  const inputRef8 = useRef(null);
 
   const [formTitle, setFormTitle] = useState("Home Page");
   const [activeLink, setActiveLink] = useState("");
   const [formOne, setFormOne] = useState(false);
+  const [foodForm, setFoodForm] = useState(false);
   const [formTow, setFormTow] = useState(false);
   const [formThree, setFormThree] = useState(false);
   const [formFour, setFormFour] = useState(false);
+  // const [formFive, setFormFive] = useState(false);
 
   const [drugObj, setDrugObj] = useState({});
+  const [foodObj, setFoodObj] = useState({});
   const [eventObj, setEventObj] = useState({});
   const [contactObj, setContactObj] = useState([]);
   const [confOrderObj, setConfOrderObj] = useState([]);
@@ -33,6 +38,20 @@ const home = () => {
     setFormTow(false);
     setFormThree(false);
     setFormFour(false);
+    setFoodForm(false);
+
+    // setFormFive(false);
+  };
+  const addFoodHandler = () => {
+    const newTitle = "Add Food Form";
+    setFormTitle(newTitle);
+    setActiveLink("addFood");
+    setFoodForm(true);
+    setFormOne(false);
+    setFormTow(false);
+    setFormThree(false);
+    setFormFour(false);
+    // setFormFive(false);
   };
 
   const addEventHandler = () => {
@@ -43,6 +62,9 @@ const home = () => {
     setFormTow(true);
     setFormThree(false);
     setFormFour(false);
+    setFoodForm(false);
+
+    // setFormFive(false);
   };
 
   const orderConfirmationHandler = () => {
@@ -53,6 +75,9 @@ const home = () => {
     setFormTow(false);
     setFormThree(true);
     setFormFour(false);
+    setFoodForm(false);
+
+    // setFormFive(false);
 
     ////////////////////////////////
     // get alll contacts
@@ -76,6 +101,7 @@ const home = () => {
     setFormTow(false);
     setFormThree(false);
     setFormFour(true);
+    setFoodForm(false);
 
     ////////////////////////////////
     // get alll contacts
@@ -94,6 +120,7 @@ const home = () => {
   const getDrugDataHandler = () => {
     const newDrugObj = {
       drugName: inputRef1.current.value,
+      drugType: inputRef8.current.value,
       drugDesc: inputRef2.current.value,
       drugUrl: inputRef3.current.value,
     };
@@ -109,13 +136,34 @@ const home = () => {
         console.error(error);
       });
     ///////
+
+    console.log(newDrugObj);
+  };
+  const getFoodDataHandler = () => {
+    const newFoodObj = {
+      foodName: inputRef1.current.value,
+      foodType: inputRef7.current.value,
+      foodDesc: inputRef2.current.value,
+      foodUrl: inputRef3.current.value,
+    };
+    setFoodObj(foodObj);
+    ///////
+    axios
+      .post("http://localhost:8000/adminFood", newFoodObj)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    ///////
   };
 
   const getEventDataHandler = () => {
     const newEventObj = {
       eventTitle: inputRef4.current.value,
       eventDesc: inputRef5.current.value,
-       eventDate:inputRef6.current.value
+      eventDate: inputRef6.current.value,
     };
     setEventObj(newEventObj);
     console.log(newEventObj);
@@ -200,6 +248,18 @@ const home = () => {
               <a
                 href="#"
                 className={`list-group-item list-group-item-action py-2 ripple ${
+                  activeLink === "addFood" ? "active" : ""
+                }`}
+                aria-current="true"
+                onClick={addFoodHandler}
+              >
+                <i className="fas fa-tachometer-alt fa-fw me-3"></i>
+                <span>Add Food</span>
+              </a>
+
+              <a
+                href="#"
+                className={`list-group-item list-group-item-action py-2 ripple ${
                   activeLink === "addEvent" ? "active" : ""
                 }`}
                 onClick={addEventHandler}
@@ -278,6 +338,23 @@ const home = () => {
                 aria-describedby="emailHelp"
               />
             </div>
+            <div className="mb-3 ">
+              <label for="exampleInputEmail1" className="form-label">
+                Drug Type:
+              </label>
+              <select
+                ref={inputRef8}
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+              >
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
+                <option value="option4">Option 4</option>
+                <option value="option5">Option 5</option>
+              </select>
+            </div>
             <div className="mb-3">
               <label for="exampleInputPassword1" className="form-label">
                 Drug Description:
@@ -306,6 +383,69 @@ const home = () => {
               type="submit"
               className="btn btn-primary formOneSubmit"
               onClick={getDrugDataHandler}
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      ) : (
+        ""
+      )}
+      {/* FOOD Form */}
+      {foodForm === true ? (
+        <div className="form__add__drug">
+          <form>
+            <div className="mb-3 ">
+              <label for="exampleInputEmail1" className="form-label">
+                food Name:
+              </label>
+              <input
+                ref={inputRef1}
+                type="text"
+                className="form-control"
+                id="exampleInputEmail1"
+                aria-describedby="emailHelp"
+              />
+            </div>
+            <div className="mb-3">
+              <label for="exampleInputPassword1" className="form-label">
+                Food Type:
+              </label>
+              <input
+                ref={inputRef7}
+                type="text"
+                className="form-control"
+                id="exampleInputPassword1"
+              />
+            </div>
+            <div className="mb-3">
+              <label for="exampleInputPassword1" className="form-label">
+                Food Description:
+              </label>
+              <input
+                ref={inputRef2}
+                type="text"
+                className="form-control"
+                id="exampleInputPassword1"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label for="exampleInputPassword1" className="form-label">
+                Food Image:
+              </label>
+              <input
+                ref={inputRef3}
+                type="text"
+                className="form-control"
+                id="exampleInputPassword1"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary formOneSubmit"
+              onClick={getFoodDataHandler}
             >
               Submit
             </button>
@@ -370,45 +510,45 @@ const home = () => {
       {/* FORM 3 */}
 
       {formThree === true && confOrderObj
-  ? confOrderObj.map((item, index) => {
-      return (
-        item.Acceptance === false && (
-          <div
-            className="card form__confirmation__order "
-            styles="width: 20rem; margin-left:20px;"
-          >
-            <img
-              className="card-img-top"
-              src={item.foodUrl}
-              alt="Card image cap"
-            />
-            <div className="card-body">
-              <h5 className="card-title">{item.foodName}</h5>
-              <p className="card-text">{item.foodDesc}</p>
-              <button
-                className="btn btn-primary"
-                onClick={() => AcceptConfirmationOrderHandler(index)}
-              >
-                Accept
-              </button>{" "}
-              <button
-                className="btn btn-primary"
-                onClick={() => RejectConfirmationOrderHandler(index)}
-              >
-                Reject
-              </button>{" "}
-              <button
-                className="btn btn-danger"
-                onClick={() => DeleteConfirmationOrderHandler(index)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        )
-      );
-    })
-  : ""}
+        ? confOrderObj.map((item, index) => {
+            return (
+              item.Acceptance === false && (
+                <div
+                  className="card form__confirmation__order "
+                  styles="width: 20rem; margin-left:20px;"
+                >
+                  <img
+                    className="card-img-top"
+                    src={item.foodUrl}
+                    alt="Card image cap"
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title">{item.foodName}</h5>
+                    <p className="card-text">{item.foodDesc}</p>
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => AcceptConfirmationOrderHandler(index)}
+                    >
+                      Accept
+                    </button>{" "}
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => RejectConfirmationOrderHandler(index)}
+                    >
+                      Reject
+                    </button>{" "}
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => DeleteConfirmationOrderHandler(index)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )
+            );
+          })
+        : ""}
       {/* FORM 4 */}
 
       {formFour === true && contactObj
