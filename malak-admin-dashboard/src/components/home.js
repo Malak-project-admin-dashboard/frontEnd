@@ -138,6 +138,7 @@ const home = () => {
     ///////
 
     console.log(newDrugObj);
+    
   };
   const getFoodDataHandler = () => {
     const newFoodObj = {
@@ -348,11 +349,12 @@ const home = () => {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               >
-                <option value="option1">Option 1</option>
-                <option value="option2">Option 2</option>
-                <option value="option3">Option 3</option>
-                <option value="option4">Option 4</option>
-                <option value="option5">Option 5</option>
+                <option value="Dietary_supplements">Dietary supplements</option>
+                <option value="Painkillers">Painkillers</option>
+                <option value="Antibiotics">Antibiotics</option>
+                <option value="Children_medicines">Children's medicines</option>
+                <option value="Medicines_for_the_elderly">Medicines for the elderly</option>
+                <option value="Cosmetics">Cosmetics</option>
               </select>
             </div>
             <div className="mb-3">
@@ -369,7 +371,7 @@ const home = () => {
 
             <div className="mb-3">
               <label for="exampleInputPassword1" className="form-label">
-                Drug Image:
+                Drug Image As Url:
               </label>
               <input
                 ref={inputRef3}
